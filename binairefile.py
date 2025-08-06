@@ -4,11 +4,11 @@ import os
 
 # --- Variables globales et configuration ---
 app = customtkinter.CTk()
-app.title("Représentation Binaire de Fichiers")
+app.title("Représentation Binaire et ASCII de Fichiers")
 app.geometry("800x600")
 
-def select_file_and_display_binary():
-    """Ouvre une boîte de dialogue pour sélectionner un fichier et affiche sa représentation binaire."""
+def select_file_and_display():
+    """Ouvre une boîte de dialogue pour sélectionner un fichier et affiche sa représentation binaire et ASCII."""
     filepath = filedialog.askopenfilename(
         title="Sélectionnez un fichier",
         filetypes=[("Tous les fichiers", "*.*")]
@@ -28,11 +28,16 @@ def select_file_and_display_binary():
             status_label.configure(text=f"Le fichier est trop volumineux ({len(content) / (1024*1024):.2f} Mo). Limite : 10 Mo", text_color="red")
             return
             
-        # Créer une liste de chaînes binaires avec numérotation
         binary_lines = []
         for i, byte in enumerate(content):
-            # i+1 pour une numérotation qui commence à 1
-            line = f"{i+1:04d}: {format(byte, '08b')}"
+            # Déterminer le caractère ASCII
+            # On vérifie si c'est un caractère imprimable pour l'afficher
+            if byte >= 32 and byte <= 126:
+                ascii_char = chr(byte)
+            else:
+                ascii_char = "."  # Affiche un point pour les caractères non imprimables
+            
+            line = f"{i+1:04d}: {format(byte, '08b')} | {ascii_char}"
             binary_lines.append(line)
         
         binary_representation = "\n".join(binary_lines)
@@ -49,10 +54,10 @@ def select_file_and_display_binary():
 scrollable_frame = customtkinter.CTkScrollableFrame(master=app)
 scrollable_frame.pack(pady=20, padx=60, fill="both", expand=True)
 
-label_title = customtkinter.CTkLabel(master=scrollable_frame, text="Représentation Binaire de Fichiers", font=("Roboto", 24))
+label_title = customtkinter.CTkLabel(master=scrollable_frame, text="Représentation Binaire et ASCII de Fichiers", font=("Roboto", 24))
 label_title.pack(pady=12, padx=10)
 
-button_select_file = customtkinter.CTkButton(master=scrollable_frame, text="Sélectionner un fichier", command=select_file_and_display_binary)
+button_select_file = customtkinter.CTkButton(master=scrollable_frame, text="Sélectionner un fichier", command=select_file_and_display)
 button_select_file.pack(pady=(20, 10), padx=10)
 
 status_label = customtkinter.CTkLabel(master=scrollable_frame, text="Aucun fichier sélectionné.", text_color="blue")
@@ -61,8 +66,8 @@ status_label.pack(pady=5, padx=10)
 entry_file_path = customtkinter.CTkEntry(master=scrollable_frame, placeholder_text="Chemin du fichier sélectionné...", width=500)
 entry_file_path.pack(pady=5, padx=10, fill="x")
 
-label_binary = customtkinter.CTkLabel(master=scrollable_frame, text="Contenu binaire : (numérotation et un octet par ligne)")
-label_binary.pack(pady=(20, 0), padx=10, anchor="w")
+label_output = customtkinter.CTkLabel(master=scrollable_frame, text="Contenu binaire et ASCII :")
+label_output.pack(pady=(20, 0), padx=10, anchor="w")
 
 output_text = customtkinter.CTkTextbox(master=scrollable_frame, width=500, height=300)
 output_text.pack(pady=5, padx=10, fill="both", expand=True)
